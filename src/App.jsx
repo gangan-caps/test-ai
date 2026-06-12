@@ -1104,7 +1104,25 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState('张明');
   const [route, setRoute] = useState({ page: 'home', id: null, query: '' });
-  const [videos, setVideos] = useState(initialVideoData);
+  // 从 localStorage 加载视频数据，如果没有则使用初始数据
+  const [videos, setVideos] = useState(() => {
+    try {
+      const saved = localStorage.getItem('training_videos');
+      return saved ? JSON.parse(saved) : initialVideoData;
+    } catch {
+      return initialVideoData;
+    }
+  });
+
+  // 每次视频数据变化时自动保存到 localStorage
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('training_videos', JSON.stringify(videos));
+    } catch (e) {
+      console.warn('无法保存视频数据到本地存储', e);
+    }
+  }, [videos]);
+
   const [msgApi, msgContextHolder] = message.useMessage();
 
   const navigate = (page, id = null, query = '') => {
